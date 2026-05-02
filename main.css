@@ -1,0 +1,321 @@
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f5f7fb;
+    color: #212529;
+}
+
+/*шапка с анимацей */
+header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 30px 0;
+    background: linear-gradient(
+    45deg,
+    #667eea,
+    #764ba2,
+    #f093fb,
+    #f5576c,
+    #667eea
+    );
+    background-size: 400% 400%;
+    animation: gradientAnimation 15s ease infinite;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+@keyframes gradientAnimation {
+    0% {
+    background-position: 0% 50%;
+    }
+    50% {
+    background-position: 100% 50%;
+    }
+    100% {
+    background-position: 0% 50%;
+    }
+}
+
+/* для лого */
+.logo-text {
+    margin: 0;
+    font-size: 48px;
+    font-weight: 900;
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.3),
+    0 4px 8px rgba(0, 0, 0, 0.2),
+    0 8px 16px rgba(0, 0, 0, 0.15);
+    background: linear-gradient(45deg, #ffffff, #f0f0f0, #ffffff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: textGlow 3s ease-in-out infinite alternate;
+}
+
+@keyframes textGlow {
+    0% {
+    text-shadow:
+        0 2px 4px rgba(0, 0, 0, 0.3),
+        0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+    100% {
+    text-shadow:
+        0 2px 8px rgba(255, 255, 255, 0.4),
+        0 4px 16px rgba(255, 255, 255, 0.3),
+        0 8px 24px rgba(255, 255, 255, 0.2);
+    transform: scale(1.02);
+    }
+}
+
+/*  */
+nav {
+    background-color: #e9ecef;
+    padding: 15px 20px;
+    border-bottom: 1px solid #dee2e6;
+    position: relative;
+}
+
+nav ul {
+    display: flex;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    gap: 25px;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+nav li {
+    display: flex;
+    align-items: center;
+}
+
+.nav-button {
+    border: none;
+    background: #ffffff;
+    color: #343a40;
+    padding: 12px 18px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.nav-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+    background: #f8f9fa;
+}
+
+.nav-button.active {
+    background: #667eea;
+    color: #ffffff;
+    box-shadow: 0 10px 26px rgba(102, 126, 234, 0.3);
+}
+
+.search-button {
+    width: 48px;
+    height: 48px;
+    border: none;
+    border-radius: 50%;
+    background: #667eea;
+    color: #ffffff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.search-button:hover {
+    transform: translateY(-2px);
+    background: #5569d8;
+    box-shadow: 0 12px 28px rgba(102, 126, 234, 0.38);
+}
+
+.search-field {
+    width: 0;
+    opacity: 0;
+    border: 1px solid #dee2e6;
+    border-radius: 999px;
+    padding: 0;
+    margin-left: 0;
+    font-size: 14px;
+    outline: none;
+    transition: width 0.25s ease, opacity 0.25s ease, margin-left 0.25s ease, padding 0.25s ease;
+}
+
+.search-field.visible {
+    width: 210px;
+    opacity: 1;
+    margin-left: 10px;
+    padding: 12px 14px;
+}
+
+main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 30px 20px 50px;
+}
+
+#newsFeed {
+    column-count: 3;
+    column-gap: 24px;
+}
+
+.news-card {
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 0;
+    box-shadow: 0 14px 34px rgba(31, 45, 61, 0.12);
+    overflow: hidden;
+    display: inline-block;
+    width: 100%;
+    margin: 0 0 24px;
+    break-inside: avoid;
+    vertical-align: top;
+}
+
+.news-card h2 {
+    margin-top: 0;
+    margin-bottom: 12px;
+    font-size: 22px;
+}
+
+.news-card p {
+    margin: 0;
+    line-height: 1.6;
+    color: #495057;
+}
+
+.news-media {
+    position: relative;
+    background: #e9ecef;
+    width: 100%;
+    overflow: hidden;
+}
+
+.news-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.news-image.loaded {
+    opacity: 1;
+}
+
+.news-card.size-sm .news-media {
+    height: 170px;
+}
+
+.news-card.size-md .news-media {
+    height: 230px;
+}
+
+.news-card.size-lg .news-media {
+    height: 300px;
+}
+
+.news-category-badge {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    z-index: 2;
+    background: rgba(0, 0, 0, 0.65);
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    padding: 6px 10px;
+    border-radius: 999px;
+    backdrop-filter: blur(4px);
+}
+
+.news-content {
+    padding: 18px 20px 20px;
+}
+
+.skeleton {
+    position: relative;
+}
+
+.skeleton::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.45) 50%,
+    rgba(255, 255, 255, 0) 100%
+    );
+    transform: translateX(-100%);
+    animation: skeletonShimmer 1.2s infinite;
+    z-index: 1;
+}
+
+.skeleton.loaded::before {
+    display: none;
+}
+
+@keyframes skeletonShimmer {
+    100% {
+    transform: translateX(100%);
+    }
+}
+
+@media (max-width: 768px) {
+    .logo-text {
+    font-size: 38px;
+    }
+
+    nav ul {
+    gap: 14px;
+    }
+
+    .nav-button {
+    min-width: 140px;
+    }
+
+    #newsFeed {
+    column-count: 2;
+    }
+}
+
+@media (max-width: 560px) {
+    nav ul {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    justify-items: center;
+    }
+
+    nav li:last-child {
+    grid-column: span 2;
+    }
+
+    .nav-button {
+    width: 100%;
+    }
+
+    #newsFeed {
+    column-count: 1;
+    }
+}
