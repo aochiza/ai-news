@@ -1,44 +1,13 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ru">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AiNews</title>
-  <link rel="stylesheet" href="main.css">
-</head>
-
-<body>
-  <header>
-    <h1 class="logo-text">AiNews</h1>
-  </header>
-
-  <nav>
-    <ul>
-      <li><button class="nav-button active" type="button" data-category="all">О НАС</button></li>
-      <li><button class="nav-button" type="button" data-category="tech">ПОПУЛЯРНОЕ</button></li>
-      <li><button class="nav-button" type="button" data-category="culture">КУЛЬТУРА</button></li>
-      <li><button class="nav-button" type="button" data-category="science">НАУКА</button></li>
-      <li><button class="nav-button" type="button" data-category="business">ЭКОНОМИКА</button></li>
-      <li><button class="nav-button" type="button" data-category="sports">СПОРТ</button></li>
-      <li>
-        <button class="search-button" type="button" aria-label="Поиск новости по ключевым словам">
-          <div class="search-icon" title="Поиск по сайту">
-            🔍
-          </div>
-        </button>
-        <input id="searchInput" class="search-field" type="search" placeholder="Поиск по ключевым словам">
-      </li>
-    </ul>
-  </nav>
-
-  <main>
-    <div id="newsFeed">
-      <article class="news-card">
-        <h2>Лента новостей</h2>
-        <p>Контейнер с арточки новостей</p>
-      </article>
-    </div>
-  </main>
-  <script src="./script.js"></script>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI News</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
 </html>
