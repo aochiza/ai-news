@@ -1,5 +1,9 @@
 # AI News (React + TypeScript)
 
+ai-news-two-tau.vercel.app
+<img width="3153" height="1830" alt="image" src="https://github.com/user-attachments/assets/a2f5853c-effb-4b66-acdc-eb116148b1db" />
+
+
 Сайт с лентой новостей, сгенерированных AI.  
 Проект получает новости через `text.pollinations.ai`, кеширует результат в `localStorage`, поддерживает фильтрацию по категориям и поиск.
 
