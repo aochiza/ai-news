@@ -108,7 +108,7 @@ export function parseNewsText(rawText: string | undefined, category: NewsItemCat
 
 export async function generateNews(
   category: NewsItemCategory,
-  count = 2,
+  count = 4,
 ): Promise<News[]> {
   const prompt = `Напиши ${count} короткие новости на тему "${getCategoryLabel(category)}". 
 Формат каждой новости: 

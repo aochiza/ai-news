@@ -5,6 +5,7 @@ import { FeedStatus } from './components/FeedStatus';
 import { FeaturedSidebar } from './components/FeaturedSidebar';
 import { NewsDetails } from './components/NewsDetails';
 import { NewsFeed } from './components/NewsFeed';
+import { AppFooter } from './components/AppFooter';
 import type { FeedCategory, News } from './domain/News';
 import { DEFAULT_CATEGORIES } from './domain/News';
 import { useNewsFeed } from './hooks/useNewsFeed';
@@ -50,18 +51,20 @@ function App() {
   );
 
   return (
-    <>
-      <AppHeader />
-      <AppNavigation
-        navItems={NAV_ITEMS}
-        currentCategory={currentCategory}
-        onSelectCategory={selectCategory}
-        searchVisible={searchVisible}
-        searchInput={searchInput}
-        onSearchInputChange={setSearchInput}
-        onToggleSearch={toggleSearch}
-        searchInputRef={searchInputRef}
-      />
+    <div className="app-wrapper">
+      <div className="sticky-header">
+        <AppHeader />
+        <AppNavigation
+          navItems={NAV_ITEMS}
+          currentCategory={currentCategory}
+          onSelectCategory={selectCategory}
+          searchVisible={searchVisible}
+          searchInput={searchInput}
+          onSearchInputChange={setSearchInput}
+          onToggleSearch={toggleSearch}
+          searchInputRef={searchInputRef}
+        />
+      </div>
       <main className="layout">
         <section className="main-column">
           {!selectedNews ? (
@@ -81,7 +84,11 @@ function App() {
           onOpenNews={setSelectedNewsId}
         />
       </main>
-    </>
+      <AppFooter 
+        totalNews={allNews.length}
+        categoriesCount={DEFAULT_CATEGORIES.length}
+      />
+    </div>
   );
 }
 
