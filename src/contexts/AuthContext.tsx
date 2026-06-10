@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 
 const BACKEND_URL = 'http://localhost:8080/api';
 
@@ -29,26 +29,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const storedToken = localStorage.getItem('auth_token');
     const storedUser = localStorage.getItem('auth_user');
     
-    console.log('🔵 AuthProvider: Loading from localStorage', { storedToken: !!storedToken, storedUser: !!storedUser });
-    
     if (storedToken && storedUser) {
-      try {
-        const parsedUser = JSON.parse(storedUser);
-        setToken(storedToken);
-        setUser(parsedUser);
-        console.log('✅ AuthProvider: User restored', parsedUser);
-      } catch (e) {
-        console.error('Failed to parse stored user:', e);
-        localStorage.removeItem('auth_token');
-        localStorage.removeItem('auth_user');
-      }
+      setToken(storedToken);
+      setUser(JSON.parse(storedUser));
     }
     setIsLoading(false);
   }, []);
 
   const login = async (email: string, password: string) => {
-    console.log('🔵 Login attempt:', email);
-    
     const response = await fetch(`${BACKEND_URL}/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -61,7 +49,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     const data = await response.json();
-    console.log('✅ Login success:', data);
     
     // Сохраняем в localStorage
     localStorage.setItem('auth_token', data.token);
@@ -85,6 +72,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const data = await response.json();
     
+    // Сохраняем в localStorage
     localStorage.setItem('auth_token', data.token);
     localStorage.setItem('auth_user', JSON.stringify(data.user));
     
@@ -93,9 +81,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = () => {
-    console.log('🔵 Logout');
+    // Очищаем localStorage
     localStorage.removeItem('auth_token');
     localStorage.removeItem('auth_user');
+    
     setToken(null);
     setUser(null);
   };

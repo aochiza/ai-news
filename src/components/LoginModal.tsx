@@ -17,7 +17,6 @@ export function LoginModal({ onClose, onLogin }: LoginModalProps) {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   
- 
   const { login, register } = useAuth();
 
   const toggleInterest = (category: string) => {
@@ -40,12 +39,10 @@ export function LoginModal({ onClose, onLogin }: LoginModalProps) {
         if (!username.trim()) {
           throw new Error('Введите имя пользователя');
         }
-        await register(username, email, password, selectedInterests);
+        await register(username, email, password);
       }
       onLogin();
       onClose();
-      // ✅ Убираем window.location.reload() - он сбрасывает состояние
-      // Просто вызываем onLogin, который обновит ленту
     } catch (err) {
       console.error('Auth error:', err);
       setError(err instanceof Error ? err.message : 'Ошибка');
@@ -58,11 +55,27 @@ export function LoginModal({ onClose, onLogin }: LoginModalProps) {
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal" onClick={(e) => e.stopPropagation()}>
         <button className="modal-close" onClick={onClose}>×</button>
-        <h2>{isLogin ? 'Вход' : 'Регистрация'}</h2>
+        
+        <div className="modal-header">
+          <div className="modal-tabs">
+            <button 
+              className={`modal-tab ${isLogin ? 'active' : ''}`}
+              onClick={() => setIsLogin(true)}
+            >
+              Вход
+            </button>
+            <button 
+              className={`modal-tab ${!isLogin ? 'active' : ''}`}
+              onClick={() => setIsLogin(false)}
+            >
+              Регистрация
+            </button>
+          </div>
+        </div>
         
         <form onSubmit={handleSubmit}>
           {!isLogin && (
-            <>
+            <div className="modal-field">
               <input
                 type="text"
                 placeholder="Имя пользователя"
@@ -71,51 +84,64 @@ export function LoginModal({ onClose, onLogin }: LoginModalProps) {
                 required
                 minLength={3}
               />
-              <div className="form-group">
-                <label>Интересы (категории новостей)</label>
-                <div className="interests-grid">
-                  {DEFAULT_CATEGORIES.map(cat => (
-                    <button
-                      key={cat}
-                      type="button"
-                      className={`interest-btn ${selectedInterests.includes(cat) ? 'active' : ''}`}
-                      onClick={() => toggleInterest(cat)}
-                    >
-                      {getCategoryLabel(cat)}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </>
+            </div>
           )}
           
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
+          <div className="modal-field">
+            <input
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
           
-          <input
-            type="password"
-            placeholder="Пароль (мин. 6 символов)"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            minLength={6}
-          />
+          <div className="modal-field">
+            <input
+              type="password"
+              placeholder="Пароль"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              minLength={6}
+            />
+          </div>
           
-          {error && <div className="error-message">{error}</div>}
+          {!isLogin && (
+            <div className="modal-interests">
+              <label>Интересы (выберите категории)</label>
+              <div className="interests-grid">
+                {DEFAULT_CATEGORIES.map(cat => (
+                  <button
+                    key={cat}
+                    type="button"
+                    className={`interest-chip ${selectedInterests.includes(cat) ? 'active' : ''}`}
+                    onClick={() => toggleInterest(cat)}
+                  >
+                    {getCategoryLabel(cat)}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
           
-          <button type="submit" disabled={isLoading}>
-            {isLoading ? 'Загрузка...' : (isLogin ? 'Войти' : 'Зарегистрироваться')}
+          {error && <div className="modal-error">{error}</div>}
+          
+          <button type="submit" className="modal-submit" disabled={isLoading}>
+            {isLoading ? (
+              <span className="loading-spinner-small"></span>
+            ) : (
+              isLogin ? 'Войти' : 'Создать аккаунт'
+            )}
           </button>
         </form>
         
-        <button className="switch-mode" type="button" onClick={() => setIsLogin(!isLogin)}>
-          {isLogin ? 'Нет аккаунта? Зарегистрироваться' : 'Уже есть аккаунт? Войти'}
-        </button>
+        <div className="modal-footer">
+          <button type="button" className="modal-switch" onClick={() => setIsLogin(!isLogin)}>
+            {isLogin ? 'Нет аккаунта? Создать' : 'Уже есть аккаунт? Войти'}
+          </button>
+        </div>
       </div>
     </div>
   );

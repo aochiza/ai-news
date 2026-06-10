@@ -13,6 +13,7 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import type { FeedCategory, News } from './domain/News';
 import { DEFAULT_CATEGORIES } from './domain/News';
 import { useNewsFeed, setAuthToken } from './hooks/useNewsFeed';
+import { ScrollButtons } from './components/ScrollButtons';
 import './App.css';
 
 const NAV_ITEMS: FeedCategory[] = ['all', ...DEFAULT_CATEGORIES];
@@ -132,6 +133,8 @@ function HomePage() {
         totalNews={allNews.length}
         categoriesCount={DEFAULT_CATEGORIES.length}
       />
+      
+      <ScrollButtons />
     </div>
   );
 }
@@ -175,11 +178,14 @@ function NewsPage() {
   if (!news) {
     return (
       <div className="app-wrapper">
-        <AppHeader />
+        <div className="sticky-header">
+          <AppHeader />
+        </div>
         <main className="layout">
           <div className="loading">Загрузка новости...</div>
         </main>
         <AppFooter totalNews={0} categoriesCount={DEFAULT_CATEGORIES.length} />
+        <ScrollButtons />
       </div>
     );
   }
@@ -227,6 +233,8 @@ function NewsPage() {
         totalNews={allNews.length}
         categoriesCount={DEFAULT_CATEGORIES.length}
       />
+      
+      <ScrollButtons />
     </div>
   );
 }
