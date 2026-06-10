@@ -1,7 +1,8 @@
 import type { CardSize, News, NewsItemCategory } from './News';
 import { CARD_SIZES, DEFAULT_CATEGORIES } from './News';
 
-const API_URL = 'https://text.pollinations.ai/generate/';
+const API_URL = 'https://gen.pollinations.ai/v1/chat/completions';
+const BACKEND_URL = 'http://localhost:8080/api';
 export const CACHE_KEY = 'aiNewsCacheV1';
 export const CACHE_TTL_MS = 5 * 60 * 1000;
 
@@ -18,10 +19,12 @@ export function getCategoryLabel(category: string): string {
   return CATEGORY_LABELS[category as keyof typeof CATEGORY_LABELS] ?? category;
 }
 
-export function getPicsumImageUrl(_seed: string): string {
-  const w = Math.floor(Math.random() * 400 + 400);
-  const h = Math.floor(Math.random() * 300 + 300);
-  return `https://placebear.com/${w}/${h}`;
+export function getPicsumImageUrl(seed: string): string {
+  // Детерминированный seed чтобы картинка не менялась при ре-рендере
+  const numericSeed = Math.abs(
+    seed.split('').reduce((acc, ch) => acc * 31 + ch.charCodeAt(0), 0) % 1000,
+  );
+  return `https://picsum.photos/id/${numericSeed}/400/300`;
 }
 
 export function getCardSize(index: number, seed: string): CardSize {
@@ -40,25 +43,30 @@ function asItemCategory(value: string | undefined): NewsItemCategory {
   return 'tech';
 }
 
-export function normalizeNewsItem(item: Partial<News> & { category?: string }, index = 0): News {
-  const safeCategory = asItemCategory(item.category);
-  const safeId = item.id ?? `${safeCategory}-${Date.now()}-${index}`;
+export function normalizeNewsItem(raw: any): News {
+  // Используем ID для генерации стабильного URL изображения
+  const imageSeed = raw.id || raw.title || Math.random().toString();
+  
   return {
-    ...item,
-    id: safeId,
-    category: safeCategory,
-    title: item.title ?? '',
-    content: item.content ?? '',
-    createdAt: item.createdAt ?? new Date().toISOString(),
-    imageUrl: item.imageUrl ?? getPicsumImageUrl(`${safeCategory}-${safeId}`),
-    cardSize: item.cardSize ?? getCardSize(index, safeId),
+    id: raw.id,
+    title: raw.title,
+    content: raw.content,
+    category: raw.category || 'technology',
+    imageUrl: raw.imageUrl || getPicsumImageUrl(imageSeed), // Используем seed из ID
+    cardSize: 'size-md',
+    createdAt: raw.createdAt || new Date().toISOString(),
+    likesCount: raw.likesCount ?? 0,
+    isLiked: raw.isLiked ?? false,
+    commentsCount: raw.commentsCount ?? 0,
+    viewsCount: raw.viewsCount ?? 0,
   };
 }
 
-export function parseNewsText(rawText: string | undefined, category: NewsItemCategory): News[] {
-  if (!rawText || typeof rawText !== 'string') {
-    return [];
-  }
+export function parseNewsText(
+  rawText: string | undefined,
+  category: NewsItemCategory,
+): News[] {
+  if (!rawText || typeof rawText !== 'string') return [];
 
   const chunks = rawText
     .split('---')
@@ -89,11 +97,11 @@ export function parseNewsText(rawText: string | undefined, category: NewsItemCat
     const title = match?.[1]?.trim() ?? `Новость #${index + 1}`;
     const content =
       match?.[2]?.trim() ?? chunk.replaceAll('**', '').trim();
-
     const trimmedContent =
       content.length > 500 ? `${content.substring(0, 500)}...` : content;
-
-    const id = `${category}-${Date.now()}-${index}-${Math.random().toString(36).slice(2, 8)}`;
+    const id = `${category}-${Date.now()}-${index}-${Math.random()
+      .toString(36)
+      .slice(2, 8)}`;
     return normalizeNewsItem({
       id,
       title: title.substring(0, 100),
@@ -117,21 +125,43 @@ export async function generateNews(
 Раздели новости строкой "---". Язык: русский.`;
 
   try {
-    const response = await fetch(API_URL + encodeURIComponent(prompt));
+    // ✅ ФИКС: POST-запрос к OpenAI-совместимому endpoint pollinations
+    const response = await fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer pk_HDH1lmceS1EC2tv8` },
+      body: JSON.stringify({
+        model: 'openai-fast',
+        messages: [{ role: 'user', content: prompt }],
+        seed: 42,
+        private: false,
+      }),
+    });
 
+
+    
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     }
 
-    const rawText = await response.text();
+    const json = (await response.json()) as {
+      choices?: { message?: { content?: string } }[];
+    };
+    
+    const rawText = json?.choices?.[0]?.message?.content ?? '';
+    console.log(`=== РЕАЛЬНЫЙ ОТВЕТ ДЛЯ ${category} ===`);
+    console.log(rawText);
+    console.log('=== КОНЕЦ ОТВЕТА ===');
+
     console.log(
-      `✅ Загружена категория ${category}, длина ответа: ${rawText.length} символов`,
+      `✅ Категория ${category}, длина ответа: ${rawText.length} символов`,
     );
 
     const news = parseNewsText(rawText, category);
 
     if (news.length === 0) {
-      console.warn(`Не удалось распарсить новости для ${category}, создаю заглушку`);
+      console.warn(
+        `Не удалось распарсить новости для ${category}, создаю заглушку`,
+      );
       return [
         normalizeNewsItem({
           id: `${category}-fallback-${Date.now()}`,
@@ -162,9 +192,13 @@ export async function generateNews(
       }),
     ];
   }
+  
 }
 
-export function getCategoryNews(allNews: News[], category: NewsItemCategory): News[] {
+export function getCategoryNews(
+  allNews: News[],
+  category: NewsItemCategory,
+): News[] {
   return allNews.filter((item) => item.category === category);
 }
 
@@ -172,7 +206,7 @@ export async function fetchAllCategoriesNews(): Promise<News[]> {
   const batches = await Promise.all(
     DEFAULT_CATEGORIES.map((category) => generateNews(category)),
   );
-  return batches.flat().map((item, index) => normalizeNewsItem(item, index));
+  return batches.flat().map((item, index) => normalizeNewsItem(item));
 }
 
 export interface NewsCachePayload {
@@ -183,17 +217,14 @@ export interface NewsCachePayload {
 export function saveNewsCache(news: News[]): void {
   const payload: NewsCachePayload = {
     timestamp: Date.now(),
-    news: news.map((item, index) => normalizeNewsItem(item, index)),
+    news: news.map((item, index) => normalizeNewsItem(item)),
   };
   localStorage.setItem(CACHE_KEY, JSON.stringify(payload));
 }
 
 export function readNewsCache(): NewsCachePayload | null {
   const raw = localStorage.getItem(CACHE_KEY);
-  if (!raw) {
-    return null;
-  }
-
+  if (!raw) return null;
   try {
     const parsed = JSON.parse(raw) as unknown;
     if (
@@ -216,5 +247,46 @@ export async function fetchCategoryNews(
 ): Promise<News[]> {
   const fresh = await generateNews(category);
   const without = existing.filter((item) => item.category !== category);
-  return without.concat(fresh.map((item, index) => normalizeNewsItem(item, index)));
+  return without.concat(
+    fresh.map((item, index) => normalizeNewsItem(item)),
+  );
+}
+
+export async function saveNewsToBackend(news: News, token: string): Promise<void> {
+  try {
+    await fetch(`${BACKEND_URL}/posts/save`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        title: news.title,
+        content: news.content,
+        image_url: news.imageUrl,
+        category: news.category,
+      }),
+    });
+  } catch (error) {
+    console.error('Failed to save news to backend:', error);
+  }
+}
+
+export async function fetchNewsFromBackend(token: string): Promise<News[]> {
+  const response = await fetch(`${BACKEND_URL}/posts?limit=50`, {
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+  
+  const data = await response.json();
+  return data.posts.map((post: any) => normalizeNewsItem({
+    id: post.id,
+    title: post.title,
+    content: post.content,
+    category: post.category || 'tech',
+    imageUrl: post.image_url,
+    createdAt: post.created_at,
+     isLiked: post.isLiked ?? post.is_liked ?? false,
+  }));
 }

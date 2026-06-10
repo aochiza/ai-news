@@ -11,8 +11,12 @@ type AppNavigationProps = {
   searchInput: string;
   onSearchInputChange: (value: string) => void;
   onToggleSearch: () => void;
-  searchInputRef: RefObject<HTMLInputElement | null>;
-  isLoading?: boolean; // Добавляем опцию для индикатора загрузки
+  searchInputRef: React.RefObject<HTMLInputElement>;
+  isLoading?: boolean;
+  user?: { username: string } | null;
+  onLoginClick: () => void;
+  onLogoutClick: () => void;
+  onProfileClick: () => void;
 };
 
 export function AppNavigation({
@@ -25,16 +29,17 @@ export function AppNavigation({
   onToggleSearch,
   searchInputRef,
   isLoading = false,
+  user,
+  onLoginClick,
+  onLogoutClick,
+  onProfileClick,
 }: AppNavigationProps) {
   const [hoveredCategory, setHoveredCategory] = useState<FeedCategory | null>(null);
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
   const [searchResultsCount, setSearchResultsCount] = useState(0);
 
-  // Эффект для подсчета результатов поиска (опционально)
   useEffect(() => {
     if (searchInput.length > 0) {
-      // Здесь можно добавить логику подсчета результатов
-      // Пока просто имитируем
       setSearchResultsCount(Math.floor(Math.random() * 20) + 1);
     } else {
       setSearchResultsCount(0);
@@ -43,7 +48,6 @@ export function AppNavigation({
 
   const handleCategoryClick = (category: FeedCategory) => {
     onSelectCategory(category);
-    // Вибрация на мобильных устройствах (опционально)
     if (window.navigator && window.navigator.vibrate) {
       window.navigator.vibrate(50);
     }
@@ -92,6 +96,7 @@ export function AppNavigation({
               )}
             </li>
           ))}
+          
           <li className="nav-item search-container">
             <button
               type="button"
@@ -113,18 +118,9 @@ export function AppNavigation({
                 <circle cx="11" cy="11" r="8" />
                 <path d="m21 21-4.3-4.3" />
               </svg>
-              {searchVisible && searchInput && (
-                <span className="search-badge">{searchResultsCount}</span>
-              )}
             </button>
             <div className={`search-wrapper ${searchVisible ? 'visible' : ''}`}>
               <div className="search-field-container">
-                <span className="search-icon">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <circle cx="11" cy="11" r="8" />
-                    <path d="m21 21-4.3-4.3" />
-                  </svg>
-                </span>
                 <input
                   ref={searchInputRef}
                   type="search"
@@ -134,17 +130,7 @@ export function AppNavigation({
                   onChange={(e) => onSearchInputChange(e.target.value)}
                   aria-label="Поиск по новостям"
                 />
-                {searchInput && (
-                  <button
-                    className="search-clear"
-                    onClick={handleSearchClear}
-                    aria-label="Очистить поиск"
-                  >
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M18 6L6 18M6 6l12 12" />
-                    </svg>
-                  </button>
-                )}
+                
                 {isLoading && searchVisible && (
                   <div className="search-loader">
                     <div className="loader-dot" />
@@ -156,12 +142,11 @@ export function AppNavigation({
               {searchVisible && searchInput && (
                 <div className="search-suggestions">
                   <div className="suggestions-header">
-                    <span>🔍 Результаты поиска</span>
+                    <span>Результаты поиска</span>
                     <span className="suggestions-count">{searchResultsCount}</span>
                   </div>
                   <div className="suggestions-list">
                     <div className="suggestion-item">
-                      <span>📰</span>
                       <span>Новости по запросу "{searchInput}"</span>
                     </div>
                   </div>
@@ -169,10 +154,21 @@ export function AppNavigation({
               )}
             </div>
           </li>
+
+          <li className="nav-item user-menu">
+            {user ? (
+              <button className="profile-button" onClick={onProfileClick}>
+                👤 {user.username}
+              </button>
+            ) : (
+              <button className="login-button" onClick={onLoginClick}>
+                Войти
+              </button>
+            )}
+          </li>
         </ul>
       </div>
       
-      {/* Индикатор загрузки для навигации */}
       {isLoading && (
         <div className="nav-loading-bar">
           <div className="loading-progress" />

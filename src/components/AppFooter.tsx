@@ -23,7 +23,7 @@ export function AppFooter({ totalNews, categoriesCount }: AppFooterProps) {
       <div className="footer-content">
         <div className="footer-section">
           <h4>AI News</h4>
-          <p>Новости генерируются ИИ</p>
+          <p>Данные получаются через text.pollinations.ai</p>
         </div>
 
         <div className="footer-section">

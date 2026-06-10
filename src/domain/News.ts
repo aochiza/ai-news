@@ -6,6 +6,10 @@ export interface News {
   createdAt: string;
   imageUrl: string;
   cardSize: CardSize;
+  likesCount?: number;
+  isLiked?: boolean;
+  commentsCount?: number;
+  viewsCount?: number;
 }
 
 export type NewsItemCategory = 'tech' | 'science' | 'sports' | 'business';
