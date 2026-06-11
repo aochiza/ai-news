@@ -1,7 +1,8 @@
 # AI News (React + TypeScript)
 
-ai-news-two-tau.vercel.app
-<img width="3153" height="1830" alt="image" src="https://github.com/user-attachments/assets/a2f5853c-effb-4b66-acdc-eb116148b1db" />
+
+<img width="3200" height="1828" alt="1" src="https://github.com/user-attachments/assets/d3867cfb-93ab-4ee4-a67f-4a240a4047ce" />
+
 
 
 Сайт с лентой новостей, сгенерированных AI.  
