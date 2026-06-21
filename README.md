@@ -1,5 +1,7 @@
 # AI News (React + TypeScript)
 
+## Домен: http://144.31.141.142/
+
 
 <img width="3200" height="1828" alt="1" src="https://github.com/user-attachments/assets/d3867cfb-93ab-4ee4-a67f-4a240a4047ce" />
 
